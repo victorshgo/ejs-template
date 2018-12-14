@@ -1,15 +1,32 @@
-//Define uma instância para o ExpressJS
-var express = require('express');
-var app = express();
+const express  = require("express");
+const app = express();
+const multer = require("multer");
 
-//Define o EJS como View Engine
-app.set('view engine', 'ejs');
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "uploads/")
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.originalname)
+    }
+})
+const upload = multer({storage});
 
-//Usar "render" para carregar arquivos EJS
-app.get('/', function(req, res) {
-    res.render('pages/index');
+app.set("view engine", "ejs");
+
+app.get("/", function(req, res) {
+    res.render("pages/index");
 });
 
-var server = app.listen(3000);
+app.get("/login", function(req, res) {
+    res.render("pages/login");
+});
 
-console.log('Servidor iniciado na porta %s...', server.address().port);
+app.post("/", upload.single("fileUpload"), (req, res, err) => {
+    console.log(req.body, req.file)
+    res.render("pages/sentSuccessfully")
+});
+
+app.listen(3000, () => {
+    console.log("Running...")
+});
